@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "gpsd-vfy-engine.fullname" . }}-test-connection"
+  labels:
+    {{- include "gpsd-vfy-engine.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "gpsd-vfy-engine.fullname" . }}:{{ index .Values.service 0 "port" }}']
+  restartPolicy: Never

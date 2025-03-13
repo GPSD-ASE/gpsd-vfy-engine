@@ -1,0 +1,45 @@
+namespace: gpsd
+
+replicaCount: 1
+
+image:
+  repository: gpsd/gpsd-vfy-engine
+  tag: "latest"
+  pullPolicy: Always
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 9500
+  initialDelaySeconds: 3
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: 9500
+  initialDelaySeconds: 3
+  periodSeconds: 10
+
+service:
+  - name: http
+    type: ClusterIP
+    port: 9500
+    targetPort: 9500
+
+env:
+  VAULT_ADDR: "https://152.53.124.121:8200"
+  VAULT_AUTH_METHOD: "kubernetes"
+  VAULT_ROLE: "gpsd-vfy-engine"
+
+serviceAccount:
+  create: true
+  name: gpsd-vfy-engine-sa
+
+resources: {}
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
