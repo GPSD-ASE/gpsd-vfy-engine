@@ -50,16 +50,5 @@ async def reverse_geocode(coordinates: Coordinates):
             raise e
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@app.get("/api/geolocation/reverse", response_model=AddressResponse)
-async def reverse_geocode_get(
-    latitude: float = Query(..., description="Latitude coordinate"),
-    longitude: float = Query(..., description="Longitude coordinate")
-):
-    """
-    GET endpoint version for reverse geocoding
-    """
-    coordinates = Coordinates(latitude=latitude, longitude=longitude)
-    return await reverse_geocode(coordinates)
-
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=9500)

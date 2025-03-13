@@ -17,7 +17,7 @@ push-image:
 	docker push $(IMAGE_NAME):$(TAG)
 
 run-image:
-	docker run -p 9500:9500 $(DEPLOYMENT)
+	docker run -p 9500:9500 $(NAMESPACE)/$(DEPLOYMENT)
 
 clean-image:
 	docker rmi $(docker images --filter "dangling=true" -q) -f
