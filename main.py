@@ -34,7 +34,7 @@ geo_service = GeoLocationService()
 async def health_check():
     return {"status": "healthy"}
 
-@app.get("/health")
+@app.get("/ready")
 async def readiness_check():
     return {"status": "ready"}
 
