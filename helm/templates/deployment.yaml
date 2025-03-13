@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-gpsd-vfy-engine
+  labels:
+    app: {{ .Release.Name }}-gpsd-vfy-engine
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-gpsd-vfy-engine
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-gpsd-vfy-engine
+    spec:
+      serviceAccountName: {{ .Release.Name }}-sa
+      containers:
+        - name: gpsd-vfy-engine
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            {{- range .Values.service }}
+            - containerPort: {{ .targetPort }}
+              name: {{ .name | default "http" }}
+            {{- end }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: VAULT_ADDR
+              value: "{{ .Values.env.VAULT_ADDR }}"
+            - name: VAULT_AUTH_METHOD
+              value: "{{ .Values.env.VAULT_AUTH_METHOD }}"
+            - name: VAULT_ROLE
+              value: "{{ .Values.env.VAULT_ROLE }}"
+            - name: VAULT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: vault-token-secret
+                  key: VAULT_TOKEN
+          volumeMounts:
+            - name: vault-ca-cert
+              mountPath: /etc/ssl/certs/vault.pem
+              subPath: vault.pem
+              readOnly: true
+      volumes:
+        - name: vault-ca-cert
+          configMap:
+            name: vault-ca-cert
