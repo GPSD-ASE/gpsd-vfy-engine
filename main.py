@@ -34,6 +34,10 @@ geo_service = GeoLocationService()
 async def health_check():
     return {"status": "healthy"}
 
+@app.get("/health")
+async def readiness_check():
+    return {"status": "ready"}
+
 @app.post("/api/v1/geolocation/reverse", response_model=AddressResponse)
 async def reverse_geocode(coordinates: Coordinates):
     """
